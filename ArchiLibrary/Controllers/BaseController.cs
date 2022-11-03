@@ -1,17 +1,18 @@
-﻿using System;
+﻿using ArchiLibrary.Data;
+using ArchiLibrary.Models;
+using ArchiLibrary.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ArchiLibrary.Data;
-using ArchiLibrary.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArchiLibrary.Controllers
 {
     [ApiController]
-    public abstract class BaseController<TContext, TModel> : ControllerBase where TContext: BaseDbContext where TModel : BaseModel
+    public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
         protected readonly TContext _context;
 
@@ -21,9 +22,20 @@ namespace ArchiLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<TModel>> GetAll()
+        public async Task<IEnumerable<TModel>> GetAll([FromQuery] Params param)
         {
-            return await _context.Set<TModel>().Where(x => x.Active).ToListAsync();
+            //return await QueryExtensions.Sort(_context.Set<TModel>().Where(x => x.Active), param).ToListAsync();
+            return await _context.Set<TModel>().Where(x => x.Active).Sort(param).ToListAsync();
+            //return await _context.Set<TModel>().Where(x => x.Active).OrderBy(x => x.CreatedAt).ThenBy(x => x.ID).ToListAsync();
+        }
+
+        [HttpGet("{id}")]// /api/{item}/3
+        public async Task<ActionResult<TModel>> GetById([FromRoute] int id)
+        {
+            var item = await _context.Set<TModel>().SingleOrDefaultAsync(x => x.ID == id);
+            if (item == null || !item.Active)
+                return NotFound();
+            return item;
         }
 
         [HttpPost]
@@ -35,14 +47,7 @@ namespace ArchiLibrary.Controllers
 
             return CreatedAtAction("GetById", new { id = item.ID }, item);
         }
-        [HttpGet("{id}")] // /api/brands/3
-        public async Task<ActionResult<TModel>> GetById([FromRoute] int id)
-        {
-            var item = await _context.Set<TModel>().SingleOrDefaultAsync(x => x.ID == id);
-            if (item == null || !item.Active)
-                return NotFound();
-            return item;
-        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<TModel>> PutItem([FromRoute] int id, [FromBody] TModel item)
         {
@@ -57,16 +62,19 @@ namespace ArchiLibrary.Controllers
 
             return item;
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<TModel>> DeleteItem([FromRoute] int id)
         {
             var item = await _context.Set<TModel>().FindAsync(id);
             if (item == null)
                 return BadRequest();
+            //_context.Entry(item).State = EntityState.Deleted;
             _context.Remove(item);
             await _context.SaveChangesAsync();
             return item;
         }
+
         private bool ItemExists(int id)
         {
             return _context.Set<TModel>().Any(x => x.ID == id);
