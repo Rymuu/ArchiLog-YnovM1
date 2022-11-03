@@ -14,6 +14,7 @@ namespace ArchiLibrary.Controllers
     [ApiController]
     public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
+        const int Accept = 50;
         protected readonly TContext _context;
 
         public BaseController(TContext context)
@@ -22,10 +23,28 @@ namespace ArchiLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<TModel>> GetAll([FromQuery] Params param)
+        public async Task<IEnumerable<TModel>> GetAll([FromQuery] Params p)
         {
-            //return await QueryExtensions.Sort(_context.Set<TModel>().Where(x => x.Active), param).ToListAsync();
-            return await _context.Set<TModel>().Where(x => x.Active).Sort(param).ToListAsync();
+            var query = _context.Set<TModel>().Where(x => x.Active);
+                query = query.Sort(p);
+            if (!string.IsNullOrWhiteSpace(p.Range))
+            {
+                string[] values = p.Range.Split('-');
+                var start = int.Parse(values[0]);
+                var end = int.Parse(values[1]);
+                var nb = end - start;
+                /*if (nb < 0 && Accept < nb)
+                {
+                    return (IEnumerable<TModel>)BadRequest();
+                }*/
+                this.Response.Headers.Add("Content-Range", p.Range);
+                this.Response.Headers.Add("Accept-Range", Accept.ToString());
+                //return await QueryExtensions.Sort(_context.Set<TModel>().Where(x => x.Active), param).ToListAsync();
+                query = query.Pagination(start, end);
+
+            }
+            return await query.ToListAsync();
+
             //return await _context.Set<TModel>().Where(x => x.Active).OrderBy(x => x.CreatedAt).ThenBy(x => x.ID).ToListAsync();
         }
 

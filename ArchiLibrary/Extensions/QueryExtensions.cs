@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -43,10 +44,16 @@ namespace ArchiLibrary.Extensions
                 return query.OrderByDescending(lambda);
                 //return query.OrderBy(x => x.Name);
             }
+            
             else
                 return (IOrderedQueryable<TModel>)query;
 
-            
+        }
+
+        public static IOrderedQueryable<TModel> Pagination<TModel>(this IQueryable<TModel> query, int start, int end)
+        { 
+                return (IOrderedQueryable<TModel>)query.Skip(start).Take(end-start);
+                //return query.OrderBy(x => x.Name);
         }
     }
 }
