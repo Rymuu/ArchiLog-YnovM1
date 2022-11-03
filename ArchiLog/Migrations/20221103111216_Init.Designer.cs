@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArchiLog.Migrations
 {
     [DbContext(typeof(ArchiLogDbContext))]
-    [Migration("20221021081504_Car")]
-    partial class Car
+    [Migration("20221103111216_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,7 +32,13 @@ namespace ArchiLog.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -56,10 +62,16 @@ namespace ArchiLog.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -77,17 +89,12 @@ namespace ArchiLog.Migrations
             modelBuilder.Entity("ArchiLog.Models.Car", b =>
                 {
                     b.HasOne("ArchiLog.Models.Brand", "Brand")
-                        .WithMany("Cars")
+                        .WithMany()
                         .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Brand");
-                });
-
-            modelBuilder.Entity("ArchiLog.Models.Brand", b =>
-                {
-                    b.Navigation("Cars");
                 });
 #pragma warning restore 612, 618
         }
