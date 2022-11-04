@@ -103,6 +103,7 @@ namespace ArchiLibrary.Controllers
             try
             {
                 var query = _context.Set<TModel>().Where(x => x.Active);
+                query = query.Sort(p);
                 if (!string.IsNullOrEmpty(p.name))
                 {
                     query = query.Where(x => x.Name.Contains(p.name));

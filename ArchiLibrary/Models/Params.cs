@@ -8,9 +8,9 @@ namespace ArchiLibrary.Models
 {
     public class Params
     {
+        public string? name { get; set; }
         public string? Asc { get; set; }
         public string? Desc { get; set; }
         public string? Range { get; set; }
-        public string? name { get; set; }
     }
 }
