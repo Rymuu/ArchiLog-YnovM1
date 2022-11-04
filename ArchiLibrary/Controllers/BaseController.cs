@@ -39,8 +39,9 @@ namespace ArchiLibrary.Controllers
                 var end = int.Parse(values[1]);
                 var nb = end - start;
                 int nbitems1 = end - 1;
+                int totalItems = _context.Set<TModel>().Where(x => x.Active).Count();
 
-                if (start > end || nb > (Accept -1))
+                if (start > end || nb > (Accept -1) || end > (totalItems - 1))
                     return BadRequest();
 
                 string first = ("0-" + nb);
@@ -50,7 +51,7 @@ namespace ArchiLibrary.Controllers
 
                 first = route.Replace("Range=", "Range=" + first);
                 first = first + "; rel=\"first\", ";
- 
+
                 int nbitems2 = start - 1;
                 nbitems1 = nbitems2 - nb;
 
@@ -65,7 +66,7 @@ namespace ArchiLibrary.Controllers
                 nbitems1 = (start + nb) + 1;
                 nbitems2 = nbitems1 + nb;
                 next = route.Replace("Range=", "Range=" + nbitems1 + "-" + nbitems2 + "; rel=\"next\", ");
-
+                last = route.Replace("Range=", "Range=" + (totalItems - nb) + "-" + totalItems + "; rel=\"last\"");
                 //var first = route
                 /*if (nb < 0 && Accept < nb)
                 {
@@ -73,7 +74,7 @@ namespace ArchiLibrary.Controllers
                 }*/
                 this.Response.Headers.Add("Content-Range", p.Range);
                 this.Response.Headers.Add("Accept-Range", Accept.ToString());
-                this.Response.Headers.Add("Link", url + first + prev + next);
+                this.Response.Headers.Add("Link", url + first + prev + next + last);
                 //return await QueryExtensions.Sort(_context.Set<TModel>().Where(x => x.Active), param).ToListAsync();
                 query = query.Pagination(start, end);
 
