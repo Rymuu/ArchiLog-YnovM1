@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Versioning;
+using Microsoft.AspNetCore.Http;
 
 namespace ArchiLibrary.Controllers
 {
@@ -93,6 +94,31 @@ namespace ArchiLibrary.Controllers
             return await query.ToListAsync();
 
             //return await _context.Set<TModel>().Where(x => x.Active).OrderBy(x => x.CreatedAt).ThenBy(x => x.ID).ToListAsync();
+        }
+
+        [HttpGet]
+        [Route("search/")]
+        public async Task<ActionResult<IEnumerable<TModel>>> Search([FromQuery] Params p)
+        {
+            try
+            {
+                var query = _context.Set<TModel>().Where(x => x.Active);
+                if (!string.IsNullOrEmpty(p.name))
+                {
+                    query = query.Where(x => x.Name.Contains(p.name));
+                }
+                var result = await query.ToListAsync();
+                if (result.Any())
+                {
+                    return Ok(result);
+                }
+                return NotFound();
+
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error");
+            }
         }
 
         [HttpGet("{id}")]// /api/{item}/3
