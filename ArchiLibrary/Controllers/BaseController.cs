@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Versioning;
 
 namespace ArchiLibrary.Controllers
 {
     [ApiController]
     public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
+        const string url = "https://localhost:7090";
         const int Accept = 50;
         protected readonly TContext _context;
 
@@ -23,8 +25,11 @@ namespace ArchiLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<TModel>> GetAll([FromQuery] Params p)
+        public async Task<ActionResult<IEnumerable<TModel>>> GetAll([FromQuery] Params p)
         {
+            var route = url + Request.Path.Value + Request.QueryString.Value;
+            route = route.Remove(route.IndexOf("Range=")+6, 3);
+
             var query = _context.Set<TModel>().Where(x => x.Active);
                 query = query.Sort(p);
             if (!string.IsNullOrWhiteSpace(p.Range))
@@ -33,12 +38,42 @@ namespace ArchiLibrary.Controllers
                 var start = int.Parse(values[0]);
                 var end = int.Parse(values[1]);
                 var nb = end - start;
+                int nbitems1 = end - 1;
+
+                if (start > end || nb > (Accept -1))
+                    return BadRequest();
+
+                string first = ("0-" + nb);
+                string prev = "";
+                string next = "";
+                string last = "";
+
+                first = route.Replace("Range=", "Range=" + first);
+                first = first + "; rel=\"first\", ";
+ 
+                int nbitems2 = start - 1;
+                nbitems1 = nbitems2 - nb;
+
+                if (nbitems1 >= 0)
+                {
+                    prev = route.Replace("Range=", "Range=" + nbitems1 + "-" + nbitems2 + "; rel=\"prev\", ");
+                }
+                else
+                {
+                    prev = first.Replace("first", "prev");
+                }
+                nbitems1 = (start + nb) + 1;
+                nbitems2 = nbitems1 + nb;
+                next = route.Replace("Range=", "Range=" + nbitems1 + "-" + nbitems2 + "; rel=\"next\", ");
+
+                //var first = route
                 /*if (nb < 0 && Accept < nb)
                 {
                     return (IEnumerable<TModel>)BadRequest();
                 }*/
                 this.Response.Headers.Add("Content-Range", p.Range);
                 this.Response.Headers.Add("Accept-Range", Accept.ToString());
+                this.Response.Headers.Add("Link", url + first + prev + next);
                 //return await QueryExtensions.Sort(_context.Set<TModel>().Where(x => x.Active), param).ToListAsync();
                 query = query.Pagination(start, end);
 
