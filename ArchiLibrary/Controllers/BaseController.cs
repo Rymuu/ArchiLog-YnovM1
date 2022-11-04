@@ -51,6 +51,7 @@ namespace ArchiLibrary.Controllers
 
                 first = route.Replace("Range=", "Range=" + first);
                 first = first + "; rel=\"first\", ";
+                last = route.Replace("Range=", "Range=" + (totalItems - nb) + "-" + totalItems + "; rel=\"last\"");
 
                 int nbitems2 = start - 1;
                 nbitems1 = nbitems2 - nb;
@@ -63,10 +64,20 @@ namespace ArchiLibrary.Controllers
                 {
                     prev = first.Replace("first", "prev");
                 }
+
+
                 nbitems1 = (start + nb) + 1;
                 nbitems2 = nbitems1 + nb;
-                next = route.Replace("Range=", "Range=" + nbitems1 + "-" + nbitems2 + "; rel=\"next\", ");
-                last = route.Replace("Range=", "Range=" + (totalItems - nb) + "-" + totalItems + "; rel=\"last\"");
+
+                if (nbitems2 <= (totalItems - 1))
+                {
+                    next = route.Replace("Range=", "Range=" + nbitems1 + "-" + nbitems2 + "; rel=\"last\", ");
+                }
+                else
+                {
+                    next = last.Replace("last", "next");
+                }
+                
                 //var first = route
                 /*if (nb < 0 && Accept < nb)
                 {
