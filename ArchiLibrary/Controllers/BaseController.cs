@@ -4,6 +4,7 @@ using ArchiLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Serilog;
 
 namespace ArchiLibrary.Controllers
 {
@@ -22,6 +23,9 @@ namespace ArchiLibrary.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TModel>>> GetAll([FromQuery] Params p)
         {
+
+            Log.Information("Récupération du GetAll...");
+
             var route = url + Request.Path.Value + Request.QueryString.Value;
             route = route.Remove(route.IndexOf("Range=")+6, 3);
 
