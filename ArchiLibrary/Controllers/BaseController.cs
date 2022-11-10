@@ -11,11 +11,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Versioning;
+using Microsoft.AspNetCore.Http;
 
 namespace ArchiLibrary.Controllers
 {
     [ApiController]
-    public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
+    public class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
         const int Accept = 50;
         protected readonly TContext _context;
@@ -116,7 +117,27 @@ namespace ArchiLibrary.Controllers
                 query = query.Sort(p);
                 if (!string.IsNullOrEmpty(p.name))
                 {
-                    query = query.Where(x => x.Name.Contains(p.name));
+
+                    if (p.name.Trim().StartsWith("*") && p.name.Trim().EndsWith("*"))
+                    {
+                        p.name = p.name.Substring(1).ToLower();
+                        p.name = p.name.Substring(0, p.name.Length - 1).ToLower();
+                        query = query.Where(x => x.Name.ToLower().Contains(p.name));
+                    }
+                    else if (p.name.Trim().StartsWith("*"))
+                    {
+                        p.name = p.name.Substring(1).ToLower();
+                        query = query.Where(x => x.Name.ToLower().EndsWith(p.name));
+                    }
+                    else if(p.name.Trim().EndsWith("*"))
+                    {
+                        p.name = p.name.Substring(0, p.name.Length -1).ToLower();
+                        query = query.Where(x => x.Name.ToLower().StartsWith(p.name));
+                    }
+                    else
+                    {
+                        query = query.Where(x => x.Name.ToLower().Equals(p.name.ToLower()));
+                    }
                 }
                 var result = await query.ToListAsync();
                 if (result.Any())
