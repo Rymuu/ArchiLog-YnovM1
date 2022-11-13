@@ -4,6 +4,9 @@ using ArchiLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using System.Linq.Expressions;
+using System;
+using System.Linq;
 
 namespace ArchiLibrary.Controllers
 {
@@ -27,6 +30,11 @@ namespace ArchiLibrary.Controllers
 
             var query = _context.Set<TModel>().Where(x => x.Active);
                 query = query.Sort(p);
+            /*if (!string.IsNullOrWhiteSpace(p.fields))
+            {
+                return await query.Select(x => new{ Id = x.ID, Name = x.Name }).ToListAsync();
+               
+            }*/
             if (!string.IsNullOrWhiteSpace(p.Range))
             {
                 string[] values = p.Range.Split('-');
