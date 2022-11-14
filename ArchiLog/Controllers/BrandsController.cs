@@ -3,6 +3,7 @@ using ArchiLog.Data;
 using ArchiLog.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Archilog.Controllers
 {
@@ -14,9 +15,10 @@ namespace Archilog.Controllers
         //private readonly ArchiLogDbContext _context;
 
         public BrandsController(ArchiLogDbContext context):base(context)
-        { 
-           
+        {
+            Log.Information("Récupération du BrandsController...");
         }
 
     }
+
 }

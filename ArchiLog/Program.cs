@@ -1,6 +1,22 @@
 using ArchiLog.Data;
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Serilog;
+using Serilog.Events;
 
+
+var builder = WebApplication.CreateBuilder(args);
+//log 
+
+var logger = Log.Logger = new LoggerConfiguration()
+  .ReadFrom.Configuration(builder.Configuration)
+  .Enrich.FromLogContext()
+  .WriteTo.Console()
+  .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
+builder.Host.UseSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -14,6 +30,7 @@ builder.Services.AddApiVersioning(options =>
 });
 
 builder.Services.AddDbContext<ArchiLogDbContext>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -29,5 +46,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+Log.Information("Démarrage de l'application...");
 
 app.Run();

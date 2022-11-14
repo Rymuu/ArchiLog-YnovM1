@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArchiLog", "ArchiLog\ArchiL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArchiLibrary", "ArchiLibrary\ArchiLibrary.csproj", "{4A06041F-C728-4C3E-ABBA-6774CE283E21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiLibraryTest", "ArchiLibraryTest\ArchiLibraryTest.csproj", "{356ED3B8-AF2A-4548-A3FA-D755110CFBEC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiLogTest", "ArchiLogTest\ArchiLogTest.csproj", "{9019B214-7151-4AC1-9315-197401617106}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArchiLibraryTest", "ArchiLibraryTest\ArchiLibraryTest.csproj", "{356ED3B8-AF2A-4548-A3FA-D755110CFBEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{356ED3B8-AF2A-4548-A3FA-D755110CFBEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{356ED3B8-AF2A-4548-A3FA-D755110CFBEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{356ED3B8-AF2A-4548-A3FA-D755110CFBEC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9019B214-7151-4AC1-9315-197401617106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9019B214-7151-4AC1-9315-197401617106}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9019B214-7151-4AC1-9315-197401617106}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9019B214-7151-4AC1-9315-197401617106}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ArchiLog.Data;
 using ArchiLog.Models;
 using ArchiLibrary.Controllers;
+using Serilog;
 
 namespace ArchiLog.Controllers
 {
@@ -17,7 +18,7 @@ namespace ArchiLog.Controllers
     {
         public CarsController(ArchiLogDbContext context) : base(context)
         {
-
+            Log.Information("Récupération du CarsController...");
         }
 
         // GET: api/Cars
