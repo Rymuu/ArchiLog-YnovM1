@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ArchiLibrary.Controllers
 {
@@ -27,6 +28,7 @@ namespace ArchiLibrary.Controllers
 
             var query = _context.Set<TModel>().Where(x => x.Active);
                 query = query.Sort(p);
+            //query = (IQueryable<TModel>)query.Select(x => new { x.ID, x.Name });
 
             if (!string.IsNullOrWhiteSpace(p.Range))
             {
@@ -91,11 +93,12 @@ namespace ArchiLibrary.Controllers
             {
                 if (properParam.GetProperty(item.Key) == null && typeof(TModel).GetProperty(item.Key) != null)
                 {
-                    newArrayParam[item.Key] = item.Value;
+                   newArrayParam[item.Key] = item.Value;
                 }
+                    query = query.Filter(p, newArrayParam);             
             }
 
-            return await query.Filter(p, newArrayParam).ToListAsync();
+            return await query.ToListAsync();
 
             //return await _context.Set<TModel>().Where(x => x.Active).OrderBy(x => x.CreatedAt).ThenBy(x => x.ID).ToListAsync();
         }
