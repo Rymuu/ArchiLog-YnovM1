@@ -32,11 +32,29 @@ namespace ArchiLibrary.Controllers
 
             var query = _context.Set<TModel>().Where(x => x.Active);
                 query = query.Sort(p);
-            /*if (!string.IsNullOrWhiteSpace(p.fields))
+            if (!string.IsNullOrWhiteSpace(p.fields))
             {
-                return await query.Select(x => new{ Id = x.ID, Name = x.Name }).ToListAsync();
-               
-            }*/
+                if (p.fields.Trim().ToLower().Contains("id") && p.fields.Trim().ToLower().Contains("name"))
+                {
+                    var list = await query.Select(x => new { Id = x.ID, Name = x.Name }).ToListAsync();
+                    return Ok(list);
+                }
+                else if (p.fields.Trim().ToLower().Contains("id"))
+                {
+                    var list = await query.Select(x => new { Id = x.ID }).ToListAsync();
+                    return Ok(list);
+                }
+                else if (p.fields.Trim().ToLower().Contains("name"))
+                {
+                    var list = await query.Select(x => new {Name = x.Name }).ToListAsync();
+                    return Ok(list);
+                }
+                else
+                {
+                    return NotFound();
+                }
+
+            }
             if (!string.IsNullOrWhiteSpace(p.Range))
             {
                 string[] values = p.Range.Split('-');
