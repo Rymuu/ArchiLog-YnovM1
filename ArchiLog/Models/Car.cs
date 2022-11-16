@@ -9,5 +9,6 @@ namespace ArchiLog.Models
         //[Column(Name="nomDeColonne")]
         public int BrandId { get; set; }
         public Brand? Brand { get; set; }
+        public int Rate { get; set; }   
     }
 }

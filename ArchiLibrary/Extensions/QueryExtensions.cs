@@ -1,6 +1,7 @@
 ﻿using ArchiLibrary.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -62,6 +63,7 @@ namespace ArchiLibrary.Extensions
             //arrayProperties = arrayProperties ?? throw new ArgumentNullException(nameof(arrayProperties));
             BinaryExpression binaryExpression = null;
             ConstantExpression c = null;
+            bool isThereBrackets = false;
 
             var parameter = Expression.Parameter(typeof(TModel), "x");
             UnaryExpression o = null;
@@ -71,19 +73,29 @@ namespace ArchiLibrary.Extensions
                 {
                     var key = item.Key;
                     var value = item.Value;
-                    c = Expression.Constant(value);
                     var property = Expression.Property(parameter, key /*"Name"*/);
+
+                    if (item.Value.Contains("[") && item.Value.Contains("]"))
+                    {
+                        isThereBrackets = true;
+                        value = value.Replace("[", "");
+                        value = value.Replace("]", "");
+                    }
+
+                    c = Expression.Constant(value);
 
                     //choix du type de la valeur
                     if (property.Type == typeof(string))
                     {
                         o = Expression.Convert(property, typeof(string));
                     }
-                    else if (property.Type == typeof(int))
+                    else if (property.Type == typeof(int) && !item.Value.Contains(",") && isThereBrackets == false)
                     {
+                        int v = Convert.ToInt32(value);
+                        c = Expression.Constant(v);
                         o = Expression.Convert(property, typeof(int));
                     }
-                    else if (property.Type == typeof(DateTime))
+                    else if (property.Type == typeof(DateTime) && !item.Value.Contains(",") && isThereBrackets == false)
                     {
                         if (item.Value.Contains(",") == false)
                         {
@@ -96,17 +108,41 @@ namespace ArchiLibrary.Extensions
                     if (item.Value.Contains(","))
                     {
                         var index = value.IndexOf(",");
-                        string[] values = item.Value.Split(",");
+                        string[] values = value.Split(",");
                         string? before = null;
                         string? after = null;
+                        DateTime dt1 = DateTime.Now;
+                        DateTime dt2 = DateTime.Now;
+
                         var type = property.GetType();
+
                         if (index != -1 && property.Type == typeof(int))
                         {
+                            o = Expression.Convert(property, typeof(int));
                             before = value.Substring(0, index);
                             after = value.Substring(index, value.Length - 1);
                         }
-                        //valeur inferieur ou égal
-                        if (before != null && before == "")
+                        if (property.Type == typeof(DateTime))
+                        {
+                            string s = Convert.ToString(value);
+                            values = s.Split(",");
+                            before = values[0];
+                            after = values[1];
+
+                            if (before != "")
+                            {
+                                Console.WriteLine("plus petit ou égal");
+                                dt1 = Convert.ToDateTime(before);
+                            }
+                            if (after != "")
+                            {
+                                Console.WriteLine("plus petit ou égal");
+                                dt2 = Convert.ToDateTime(after);
+                            }
+                            o = Expression.Convert(property, typeof(DateTime));               
+                        }
+                        //inferieur ou égal
+                        if (before != null && before == "" && isThereBrackets == true)
                         {
                             if (o.Type == typeof(int))
                             {
@@ -122,7 +158,8 @@ namespace ArchiLibrary.Extensions
                             }
 
                         }
-                        else if (after != null && after == "," && o.Type != typeof(string))
+                        //supérieur ou égal     
+                        else if (after != null && (after == "," || after == "") && o.Type != typeof(string) && isThereBrackets == true)
                         {
                             if (o.Type == typeof(int))
                             {
@@ -133,26 +170,47 @@ namespace ArchiLibrary.Extensions
                                 lambda = Expression.Equal(property, Expression.Constant(values[0].ToString()));
                             }
                             if (o.Type == typeof(DateTime))
-                            {
+                            {  
                                 lambda = Expression.GreaterThanOrEqual(property, Expression.Constant(DateTime.Parse(values[0])));
                             }
                         }
                         else
                         {
-                            if (o.Type == typeof(int))
+                            if (isThereBrackets == true)
                             {
-                                lambda = Expression.And(Expression.GreaterThanOrEqual(o, Expression.Constant(int.Parse(values[0]))), Expression.LessThanOrEqual(o, Expression.Constant(int.Parse(values[1]))));
+                                if (o.Type == typeof(int))
+                                {
+                                    lambda = Expression.And(Expression.GreaterThanOrEqual(o, Expression.Constant(int.Parse(values[0]))), Expression.LessThanOrEqual(o, Expression.Constant(int.Parse(values[1]))));
+                                }
+                                if (o.Type == typeof(string))
+                                {
+                                    lambda = Expression.Or(Expression.Equal(o, Expression.Constant(values[0].ToString())), Expression.Equal(o, Expression.Constant(values[1].ToString())));
+                                }
+                                if (o.Type == typeof(DateTime))
+                                {
+                                    Console.WriteLine("BIG PROBLEMS !!!!!");
+                                    Console.WriteLine(after);
+                                    Console.WriteLine(DateTime.Parse(values[0]).GetType());
+                                    lambda = Expression.And(Expression.GreaterThanOrEqual(o, Expression.Constant(DateTime.Parse(values[0]))), Expression.LessThanOrEqual(o, Expression.Constant(DateTime.Parse(values[1]))));
+                                }
                             }
-                            if (o.Type == typeof(string))
+                            else
                             {
-                                lambda = Expression.Or(Expression.Equal(o, Expression.Constant(values[0].ToString())), Expression.Equal(o, Expression.Constant(values[1].ToString())));
+                                if (o.Type == typeof(int))
+                                {
+                                    Console.WriteLine("oui on est bien passé dedans..");   
+                                    lambda = Expression.Or(Expression.Equal(o, Expression.Constant(int.Parse(values[0]))), Expression.Equal(o, Expression.Constant(int.Parse(values[1]))));
+                                }
+                                if (o.Type == typeof(string))
+                                {
+                                    lambda = Expression.Or(Expression.Equal(o, Expression.Constant(values[0].ToString())), Expression.Equal(o, Expression.Constant(values[1].ToString())));
+                                }
+                                if (o.Type == typeof(DateTime))
+                                {
+                                    Console.WriteLine(DateTime.Parse(values[0]).GetType());
+                                    lambda = Expression.Or(Expression.Equal(o, Expression.Constant(DateTime.Parse(values[0]))), Expression.Equal(o, Expression.Constant(DateTime.Parse(values[1]))));
+                                }
                             }
-                            if (o.Type == typeof(DateTime))
-                            {
-                                Console.WriteLine(DateTime.Parse(values[0]).GetType());
-                                lambda = Expression.Or(Expression.Equal(o, Expression.Constant(DateTime.Parse(values[0]))), Expression.Equal(o, Expression.Constant(DateTime.Parse(values[1]))));
-                            }
-                            //lambda = Expression.And(Expression.GreaterThan(o, Expression.Constant(values[0])), Expression.LessThan(o, Expression.Constant(values[1])));
 
                         }
                         //Expression.LessThan(o, Expression.Constant(values[0])), Expression.Equal(o, Expression.Constant(values[1]));
@@ -165,7 +223,7 @@ namespace ArchiLibrary.Extensions
                         {
                             lambda = Expression.Equal(o, c);
                         }
-                        else
+                        else 
                         {
                             lambda = Expression.Equal(o, c);
                         }
