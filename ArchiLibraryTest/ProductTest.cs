@@ -9,14 +9,14 @@ namespace ArchiLibraryTest
 {
     public class ProductTest
     {
-        public readonly DbContextOptions<BaseDbContext> _dbContextOptions;
+        public readonly DbContextOptions<ProductDbContext> _dbContextOptions;
         public ProductTest()
         {
-            _dbContextOptions = new DbContextOptionsBuilder<BaseDbContext>()
+            _dbContextOptions = new DbContextOptionsBuilder<ProductDbContext>()
                 .UseInMemoryDatabase(databaseName: "archilog")
                 .Options;
 
-            using var _context = new BaseDbContext(_dbContextOptions);
+            using var _context = new ProductDbContext(_dbContextOptions);
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
 
@@ -33,7 +33,7 @@ namespace ArchiLibraryTest
         [Fact]
         public async void TestPost()
         {
-            var context= new BaseDbContext(_dbContextOptions);
+            var context= new ProductDbContext(_dbContextOptions);
             ProductController productController = new ProductController(context);
             await productController.PostItem(new Product { Name = "test2" });
             Assert.Equal(3, await context.Products.CountAsync());

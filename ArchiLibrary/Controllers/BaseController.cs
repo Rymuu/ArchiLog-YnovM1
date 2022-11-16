@@ -3,16 +3,14 @@ using ArchiLibrary.Models;
 using ArchiLibrary.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
-using Serilog;
-using System.Linq.Expressions;
 
 namespace ArchiLibrary.Controllers
 {
     [ApiController]
     public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
-        const string url = "https://localhost:7090";
         const int Accept = 50;
         protected readonly TContext _context;
 
@@ -24,10 +22,7 @@ namespace ArchiLibrary.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TModel>>> GetAll([FromQuery] Params p)
         {
-
-            Log.Information("Récupération du GetAll...");
-
-            var route = url + Request.Path.Value + Request.QueryString.Value;
+            var route = this.Request.GetDisplayUrl();
             route = route.Remove(route.IndexOf("Range=")+6, 3);
 
             var query = _context.Set<TModel>().Where(x => x.Active);
@@ -60,8 +55,10 @@ namespace ArchiLibrary.Controllers
                 string[] values = p.Range.Split('-');
                 var start = int.Parse(values[0]);
                 var end = int.Parse(values[1]);
+
                 var nb = end - start;
                 int nbitems1 = end - 1;
+                int nbitems2 = 0;
                 int totalItems = _context.Set<TModel>().Where(x => x.Active).Count();
 
                 if (start > end || nb > (Accept -1) || end > (totalItems - 1))
@@ -76,7 +73,7 @@ namespace ArchiLibrary.Controllers
                 first = first + "; rel=\"first\", ";
                 last = route.Replace("Range=", "Range=" + (totalItems - nb) + "-" + totalItems + "; rel=\"last\"");
 
-                int nbitems2 = start - 1;
+                nbitems2 = start - 1;
                 nbitems1 = nbitems2 - nb;
 
                 if (nbitems1 >= 0)
@@ -87,7 +84,6 @@ namespace ArchiLibrary.Controllers
                 {
                     prev = first.Replace("first", "prev");
                 }
-
 
                 nbitems1 = (start + nb) + 1;
                 nbitems2 = nbitems1 + nb;
@@ -100,19 +96,28 @@ namespace ArchiLibrary.Controllers
                 {
                     next = last.Replace("last", "next");
                 }
-                
-                //var first = route
-                /*if (nb < 0 && Accept < nb)
-                {
-                    return (IEnumerable<TModel>)BadRequest();
-                }*/
+
                 this.Response.Headers.Add("Content-Range", p.Range);
                 this.Response.Headers.Add("Accept-Range", Accept.ToString());
-                this.Response.Headers.Add("Link", url + first + prev + next + last);
+                this.Response.Headers.Add("Link", first + prev + next + last);
                 //return await QueryExtensions.Sort(_context.Set<TModel>().Where(x => x.Active), param).ToListAsync();
                 query = query.Pagination(start, end);
 
             }
+
+            var url = this.Request.Query;
+            var properties = typeof(TModel).GetProperties();
+            var newArrayParam = new Dictionary<string, string>();
+            var properParam = p.GetType();
+            foreach (var item in url)
+            {
+                if (properParam.GetProperty(item.Key) == null && typeof(TModel).GetProperty(item.Key) != null)
+                {
+                   newArrayParam[item.Key] = item.Value;
+                }
+                    query = query.Filter(p, newArrayParam);             
+            }
+
             return await query.ToListAsync();
 
             //return await _context.Set<TModel>().Where(x => x.Active).OrderBy(x => x.CreatedAt).ThenBy(x => x.ID).ToListAsync();
