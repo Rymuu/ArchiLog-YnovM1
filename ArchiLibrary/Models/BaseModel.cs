@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ArchiLibrary.Models
 {
-    public class BaseModel
+    public abstract class BaseModel
     {
         public int ID { get; set; }
         public DateTime CreatedAt { get; set; }

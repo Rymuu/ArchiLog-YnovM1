@@ -1,0 +1,18 @@
+Les membres du groupe:
+- EGRO Kejsi
+- LEHNA Ryme
+- SORIANO Precious
+- DANG Ngoc Ha Lan
+
+Les responsabilités effectives :
+- Création du projet : Ryme
+- Version : Ha Lan
+- Pagination : Ryme
+- Tris : Ryme, Ha Lan, Precious, Kejsi
+- Filtres : Ryme
+- Recherche : Ha Lan, Ryme
+- Réponses partielles : Ha Lan
+- Logs : Precious, Ha Lan
+- Test unitaires : Ha Lan
+- Document : Precious
+- PowerPoint : Kejsi, Ryme, Precious, Ha Lan

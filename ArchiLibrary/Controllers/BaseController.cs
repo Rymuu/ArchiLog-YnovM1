@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Serilog;
-
+using System.Linq.Expressions;
 
 namespace ArchiLibrary.Controllers
 {
     [ApiController]
-    public class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
+    public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
         const string url = "https://localhost:7090";
         const int Accept = 50;

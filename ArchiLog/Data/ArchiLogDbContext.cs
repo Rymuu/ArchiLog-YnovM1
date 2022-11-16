@@ -9,10 +9,6 @@ namespace ArchiLog.Data
 {
     public class ArchiLogDbContext : BaseDbContext
     {
-        public ArchiLogDbContext(DbContextOptions options): base(options)
-        {
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
