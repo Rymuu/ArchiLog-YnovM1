@@ -12,6 +12,6 @@ namespace ArchiLibrary.Models
         public string? Asc { get; set; }
         public string? Desc { get; set; }
         public string? Range { get; set; }
-        public string? fields { get; set; }
+        public string? Fields { get; set; }
     }
 }
