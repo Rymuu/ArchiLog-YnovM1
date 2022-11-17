@@ -1,13 +1,5 @@
 ﻿using ArchiLibrary.Models;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.ObjectiveC;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArchiLibrary.Extensions
 {
@@ -59,7 +51,6 @@ namespace ArchiLibrary.Extensions
 
         public static IQueryable<TModel> Filter<TModel>(this IQueryable<TModel> query, Params p, Dictionary<string, string> arrayProperties)
         {
-            //arrayProperties = arrayProperties ?? throw new ArgumentNullException(nameof(arrayProperties));
             BinaryExpression binaryExpression = null;
             ConstantExpression c = null;
             bool isThereBrackets = false;
@@ -72,7 +63,7 @@ namespace ArchiLibrary.Extensions
                 {
                     var key = item.Key;
                     var value = item.Value;
-                    var property = Expression.Property(parameter, key /*"Name"*/);
+                    var property = Expression.Property(parameter, key);
 
                     if (item.Value.Contains("[") && item.Value.Contains("]"))
                     {
@@ -83,7 +74,6 @@ namespace ArchiLibrary.Extensions
 
                     c = Expression.Constant(value);
 
-                    //choix du type de la valeur
                     if (property.Type == typeof(string))
                     {
                         o = Expression.Convert(property, typeof(string));
@@ -103,7 +93,8 @@ namespace ArchiLibrary.Extensions
                         o = Expression.Convert(property, typeof(DateTime));
                     }
                     BinaryExpression? lambda = null;
-                    //savoir si il y'a la value possède 2 element
+
+                    //vérification du nombre d'éléments
                     if (item.Value.Contains(","))
                     {
                         var index = value.IndexOf(",");
@@ -210,9 +201,7 @@ namespace ArchiLibrary.Extensions
                                     lambda = Expression.Or(Expression.Equal(o, Expression.Constant(DateTime.Parse(values[0]))), Expression.Equal(o, Expression.Constant(DateTime.Parse(values[1]))));
                                 }
                             }
-
                         }
-                        //Expression.LessThan(o, Expression.Constant(values[0])), Expression.Equal(o, Expression.Constant(values[1]));
                     }
 
                     else
@@ -235,8 +224,6 @@ namespace ArchiLibrary.Extensions
                     }
                     else
                         binaryExpression = Expression.And(binaryExpression, lambda);
-                    // var equal = Expression.Equal(olamba,value);
-                    //return await _context.Set<TModel>().Where(x => x.Name.Contains(param.Name)).ToListAsync();
                 }
             }
             if (binaryExpression != null)
