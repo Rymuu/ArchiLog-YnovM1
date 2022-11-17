@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
+using System.Linq.Expressions;
+using Serilog;
+using System.Runtime.InteropServices;
 
 namespace ArchiLibrary.Controllers
 {
@@ -22,6 +25,7 @@ namespace ArchiLibrary.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TModel>>> GetAll([FromQuery] Params p)
         {
+            Log.Information("Récupération du GetAll...");
             var route = this.Request.GetDisplayUrl();
             route = route.Remove(route.IndexOf("Range=")+6, 3);
 
@@ -29,6 +33,18 @@ namespace ArchiLibrary.Controllers
                 query = query.Sort(p);
             if (!string.IsNullOrWhiteSpace(p.fields))
             {
+                /*
+                string champ = p.fields;
+
+                //créer lambda
+                var parameter = Expression.Parameter(typeof(TModel), "x");
+                var property = Expression.Property(parameter, champ);
+
+                var o = Expression.Convert(property, typeof(object));
+                var lambda = Expression.Lambda<Func<TModel, object>>(o, parameter);
+                var list = query.Select(lambda);
+                return Ok(list);
+                */
                 if (p.fields.Trim().ToLower().Contains("id") && p.fields.Trim().ToLower().Contains("name"))
                 {
                     var list = await query.Select(x => new { Id = x.ID, Name = x.Name }).ToListAsync();
@@ -127,6 +143,7 @@ namespace ArchiLibrary.Controllers
         [Route("search/")]
         public async Task<ActionResult<IEnumerable<TModel>>> Search([FromQuery] Params p)
         {
+            Log.Information("Récupération du Search...");
             try
             {
                 var query = _context.Set<TModel>().Where(x => x.Active);

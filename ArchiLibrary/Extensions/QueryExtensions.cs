@@ -35,9 +35,8 @@ namespace ArchiLibrary.Extensions
 
                 //utilisation lambda
                 return query.OrderByDescending(lambda);
-                //return query.OrderBy(x => x.Name);
+                //return query.OrderByDescending(x => x.Name);
             }
-            
             else
                 return (IOrderedQueryable<TModel>)query;
 

@@ -14,5 +14,5 @@ Les responsabilités effectives :
 - Réponses partielles : Ha Lan
 - Logs : Precious, Ha Lan
 - Test unitaires : Ha Lan
-- Document : Precious
+- Document : Precious, Ryme
 - PowerPoint : Kejsi, Ryme, Precious, Ha Lan
