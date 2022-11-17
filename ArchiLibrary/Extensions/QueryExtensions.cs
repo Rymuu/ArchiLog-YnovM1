@@ -1,6 +1,13 @@
 ﻿using ArchiLibrary.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.Metrics;
+using System.Linq;
 using System.Linq.Expressions;
-
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ObjectiveC;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ArchiLibrary.Extensions
 {
@@ -37,9 +44,8 @@ namespace ArchiLibrary.Extensions
 
                 //utilisation lambda
                 return query.OrderByDescending(lambda);
-                //return query.OrderBy(x => x.Name);
+                //return query.OrderByDescending(x => x.Name);
             }
-            
             else
                 return (IOrderedQueryable<TModel>)query;
 

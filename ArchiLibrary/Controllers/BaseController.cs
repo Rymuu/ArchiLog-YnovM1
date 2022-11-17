@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
+using System.Linq.Expressions;
 using Serilog;
-using System.Security.Cryptography.X509Certificates;
-
+using System.Runtime.InteropServices;
 
 namespace ArchiLibrary.Controllers
 {
     [ApiController]
-    public class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
+    public abstract class BaseController<TContext, TModel> : ControllerBase where TContext : BaseDbContext where TModel : BaseModel
     {
         const int Accept = 50;
         protected readonly TContext _context;
@@ -25,6 +25,7 @@ namespace ArchiLibrary.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TModel>>> GetAll([FromQuery] Params p)
         {
+            Log.Information("Récupération du GetAll...");
             var route = this.Request.GetDisplayUrl();
             route = route.Remove(route.IndexOf("Range=")+6, 3);
 
@@ -130,6 +131,7 @@ namespace ArchiLibrary.Controllers
         [Route("search/")]
         public async Task<ActionResult<IEnumerable<TModel>>> Search([FromQuery] Params p)
         {
+            Log.Information("Récupération du Search...");
             try
             {
                 var query = _context.Set<TModel>().Where(x => x.Active);

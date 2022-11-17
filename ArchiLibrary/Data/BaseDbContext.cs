@@ -8,13 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArchiLibrary.Data
 {
-    public class BaseDbContext : DbContext
+    public abstract class BaseDbContext : DbContext
     {
         public BaseDbContext(DbContextOptions options)
         : base(options)
         {
         }
-
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             ChangeCreatedState();

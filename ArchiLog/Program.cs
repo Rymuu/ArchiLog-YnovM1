@@ -14,7 +14,6 @@ var logger = Log.Logger = new LoggerConfiguration()
   .WriteTo.Console()
   .CreateLogger();
 
-builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 builder.Host.UseSerilog();
 // Add services to the container.

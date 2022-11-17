@@ -12,8 +12,9 @@ using Serilog;
 
 namespace ArchiLog.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1")]
+    [ApiVersion("2")]
     public class CarsController : BaseController<ArchiLogDbContext, Car>
     {
         public CarsController(ArchiLogDbContext context) : base(context)
